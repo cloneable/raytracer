@@ -13,6 +13,7 @@ use ::std::rc::Rc;
 // use ::math::Vec3;
 use ::math::simd::Vec3;
 
+mod executor;
 mod pbrt;
 
 use pbrt::{
