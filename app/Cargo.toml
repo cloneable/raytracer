@@ -1,0 +1,9 @@
+[package]
+name = "raytracer"
+version = "0.1.0"
+authors = ["Folke Behrens <folke@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+math = { path = "../math" }
+rand = { version = "0.8.3", features = ["small_rng"] }

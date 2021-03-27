@@ -1,0 +1,5 @@
+[package]
+name = "math"
+version = "0.1.0"
+authors = ["Folke Behrens <folke@gmail.com>"]
+edition = "2018"

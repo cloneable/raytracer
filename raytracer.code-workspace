@@ -1,0 +1,34 @@
+{
+	"folders": [
+		{
+			"name": "<APP>",
+			"path": "app/src"
+		}
+		{
+			"name": "<MATH>",
+			"path": "math/src"
+		}
+		{
+			"name": "<BIN>",
+			"path": "."
+		}
+	],
+	"settings": {
+		"explorer.sortOrder": "mixed",
+		"rust-client.engine": "rust-analyzer",
+		"[rust]": {
+			"editor.defaultFormatter": "matklad.rust-analyzer"
+		},
+		"rust-client.autoStartRls": false,
+		"rust.unstable_features": false,
+		"rust-analyzer.runnables.cargoExtraArgs": [
+			"--offline"
+		],
+		"rust-analyzer.diagnostics.warningsAsInfo": [
+			"dead_code",
+			"unused_imports",
+			"unused_macros"
+		],
+		"rust-analyzer.procMacro.enable": true,
+	}
+}
