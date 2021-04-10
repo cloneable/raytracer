@@ -11,8 +11,7 @@ use ::std::option::Option::{self, None, Some};
 use ::std::print;
 use ::std::rc::Rc;
 
-// use ::math::Vec3;
-use ::math::simd::{Point3, Vec3};
+use ::math::{Point3, Vec3};
 
 mod executor;
 mod pbrt;

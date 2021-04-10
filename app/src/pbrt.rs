@@ -9,8 +9,7 @@ use ::std::rc::Rc;
 use ::std::unreachable;
 use ::std::vec::Vec;
 
-// use ::math::Vec3;
-use ::math::simd::{Point3, Vec3};
+use ::math::{Point3, Vec3};
 use ::rand::Rng;
 use ::rand::SeedableRng;
 
