@@ -10,14 +10,14 @@ use ::std::unreachable;
 use ::std::vec::Vec;
 
 // use ::math::Vec3;
-use ::math::simd::Vec3;
+use ::math::simd::{Point3, Vec3};
 use ::rand::Rng;
 use ::rand::SeedableRng;
 
 #[derive(Default, Clone)]
 pub struct HitRecord {
     pub t: f32,
-    pub p: Vec3,
+    pub p: Point3,
     pub normal: Vec3,
     pub material: usize,
     pub u: f32,
@@ -32,7 +32,7 @@ pub trait Hitable: Debug {
 
 #[derive(Default)]
 pub struct Ray {
-    pub origin: Vec3,
+    pub origin: Point3,
     pub direction: Vec3,
     pub time: f32,
     pub max_depth: usize,
@@ -40,7 +40,7 @@ pub struct Ray {
 
 impl Ray {
     pub fn new(
-        origin: Vec3, direction: Vec3, time: f32, max_depth: usize,
+        origin: Point3, direction: Vec3, time: f32, max_depth: usize,
     ) -> Self {
         Ray {
             origin,
@@ -50,7 +50,7 @@ impl Ray {
         }
     }
 
-    pub fn point_at_param(&self, t: f32) -> Vec3 {
+    pub fn point_at_param(&self, t: f32) -> Point3 {
         self.origin + t * self.direction
     }
 
@@ -133,12 +133,12 @@ impl Default for RNG {
 
 #[derive(Clone, Copy, Default, Debug)]
 pub struct AABB {
-    min: Vec3,
-    max: Vec3,
+    min: Point3,
+    max: Point3,
 }
 
 impl AABB {
-    pub fn new(min: Vec3, max: Vec3) -> Self {
+    pub fn new(min: Point3, max: Point3) -> Self {
         AABB { min, max }
     }
 
@@ -361,8 +361,8 @@ impl Hitable for BVH {
 }
 
 pub struct Camera {
-    origin: Vec3,
-    lower_left_corner: Vec3,
+    origin: Point3,
+    lower_left_corner: Point3,
     horizontal: Vec3,
     vertical: Vec3,
 
@@ -378,7 +378,7 @@ pub struct Camera {
 
 impl Camera {
     pub fn new(
-        look_from: Vec3, look_at: Vec3, up: &Vec3, vfov: f32, aspect: f32,
+        look_from: Point3, look_at: Point3, up: &Vec3, vfov: f32, aspect: f32,
         aperture: f32, focus_dist: f32, t0: f32, t1: f32,
     ) -> Self {
         let lens_radius = aperture / 2.0;
@@ -426,7 +426,7 @@ pub trait Material {
         attenuation: &mut Vec3, scattered: &mut Ray,
     ) -> bool;
 
-    fn emitted(&self, _u: f32, _v: f32, _p: Vec3) -> Vec3 {
+    fn emitted(&self, _u: f32, _v: f32, _p: Point3) -> Vec3 {
         Vec3::default()
     }
 }
@@ -437,5 +437,5 @@ pub struct MaterialLibrary {
 }
 
 pub trait Texture: Debug {
-    fn value(&self, u: f32, v: f32, p: Vec3) -> Vec3;
+    fn value(&self, u: f32, v: f32, p: Point3) -> Vec3;
 }

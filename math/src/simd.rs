@@ -19,6 +19,7 @@ use ::std::arch::x86_64::{
                      //_mm_dp_ps, // SSE4_1
 };
 use ::std::cmp::PartialEq;
+use ::std::convert::From;
 use ::std::default::Default;
 use ::std::fmt::{Debug, Formatter, Result};
 use ::std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, Neg, Sub};
@@ -64,16 +65,6 @@ impl Vec3 {
     }
 
     #[inline]
-    pub fn min(self, other: Vec3) -> Vec3 {
-        Vec3(self.0.min(other.0))
-    }
-
-    #[inline]
-    pub fn max(self, other: Vec3) -> Vec3 {
-        Vec3(self.0.max(other.0))
-    }
-
-    #[inline]
     pub fn sqrt(self) -> Vec3 {
         Vec3(self.0.sqrt())
     }
@@ -97,6 +88,12 @@ impl Vec3 {
     pub fn as_u8(self) -> (u8, u8, u8) {
         let a = self * 255.99;
         (a[0] as u8, a[1] as u8, a[2] as u8)
+    }
+}
+
+impl From<Point3> for Vec3 {
+    fn from(p: Point3) -> Self {
+        Vec3(p.0)
     }
 }
 
@@ -183,6 +180,74 @@ impl Neg for Vec3 {
     #[inline]
     fn neg(self) -> Vec3 {
         Vec3(-self.0)
+    }
+}
+
+#[derive(Default, Copy, Clone, PartialEq, Debug)]
+pub struct Point3(F32x4);
+
+impl Point3 {
+    #[inline]
+    pub fn new(x: f32, y: f32, z: f32) -> Self {
+        Point3(F32x4::new(x, y, z, 0.0))
+    }
+
+    #[inline]
+    pub fn x(self) -> f32 {
+        self.0[0]
+    }
+
+    #[inline]
+    pub fn y(self) -> f32 {
+        self.0[1]
+    }
+
+    #[inline]
+    pub fn z(self) -> f32 {
+        self.0[2]
+    }
+
+    #[inline]
+    pub fn min(self, other: Point3) -> Point3 {
+        Point3(self.0.min(other.0))
+    }
+
+    #[inline]
+    pub fn max(self, other: Point3) -> Point3 {
+        Point3(self.0.max(other.0))
+    }
+}
+
+impl Index<usize> for Point3 {
+    type Output = f32;
+
+    #[inline]
+    fn index(&self, i: usize) -> &f32 {
+        &self.0[i]
+    }
+}
+
+impl Add<Vec3> for Point3 {
+    type Output = Point3;
+
+    fn add(self, v: Vec3) -> Point3 {
+        Point3(self.0 + v.0)
+    }
+}
+
+impl Sub for Point3 {
+    type Output = Vec3;
+
+    fn sub(self, other: Point3) -> Vec3 {
+        Vec3(self.0 - other.0)
+    }
+}
+
+impl Sub<Vec3> for Point3 {
+    type Output = Point3;
+
+    fn sub(self, v: Vec3) -> Point3 {
+        Point3(self.0 - v.0)
     }
 }
 

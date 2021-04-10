@@ -3,6 +3,7 @@
 
 use ::std::boxed::Box;
 use ::std::clone::Clone;
+use ::std::convert::From;
 use ::std::default::Default;
 use ::std::io::{self, Write};
 use ::std::iter::Iterator;
@@ -11,7 +12,7 @@ use ::std::print;
 use ::std::rc::Rc;
 
 // use ::math::Vec3;
-use ::math::simd::Vec3;
+use ::math::simd::{Point3, Vec3};
 
 mod executor;
 mod pbrt;
@@ -23,14 +24,14 @@ use pbrt::{
 
 #[derive(Debug)]
 struct Sphere {
-    center: Vec3,
+    center: Point3,
     radius: f32,
     radius_squared: f32,
     material: usize,
 }
 
 impl Sphere {
-    fn new(center: Vec3, radius: f32, material: usize) -> Self {
+    fn new(center: Point3, radius: f32, material: usize) -> Self {
         Sphere {
             center,
             radius,
@@ -89,8 +90,8 @@ impl Hitable for Sphere {
 
 #[derive(Debug)]
 struct MovingSphere {
-    center0: Vec3,
-    center1: Vec3,
+    center0: Point3,
+    center1: Point3,
     t0: f32,
     t1: f32,
     radius: f32,
@@ -100,7 +101,7 @@ struct MovingSphere {
 
 impl MovingSphere {
     fn new(
-        center0: Vec3, center1: Vec3, t0: f32, t1: f32, radius: f32,
+        center0: Point3, center1: Point3, t0: f32, t1: f32, radius: f32,
         material: usize,
     ) -> Self {
         MovingSphere {
@@ -114,7 +115,7 @@ impl MovingSphere {
         }
     }
 
-    fn center(&self, t: f32) -> Vec3 {
+    fn center(&self, t: f32) -> Point3 {
         self.center0
             + ((t - self.t0) / (self.t1 - self.t0))
                 * (self.center1 - self.center0)
@@ -164,7 +165,7 @@ impl Hitable for MovingSphere {
 struct ConstTexture(Vec3);
 
 impl Texture for ConstTexture {
-    fn value(&self, _: f32, _: f32, _: Vec3) -> Vec3 {
+    fn value(&self, _: f32, _: f32, _: Point3) -> Vec3 {
         self.0
     }
 }
@@ -176,8 +177,8 @@ struct CheckerTexture {
 }
 
 impl Texture for CheckerTexture {
-    fn value(&self, u: f32, v: f32, p: Vec3) -> Vec3 {
-        let sines = p * 10.0;
+    fn value(&self, u: f32, v: f32, p: Point3) -> Vec3 {
+        let sines: Vec3 = Vec3::from(p) * 10.0;
         let o = sines[0].sin() * sines[1].sin() * sines[2].sin();
         if o < 0.0 {
             self.odd.value(u, v, p)
@@ -320,7 +321,7 @@ impl Material for DiffuseLight {
         false
     }
 
-    fn emitted(&self, u: f32, v: f32, p: Vec3) -> Vec3 {
+    fn emitted(&self, u: f32, v: f32, p: Point3) -> Vec3 {
         self.emit.value(u, v, p)
     }
 }
@@ -335,7 +336,7 @@ fn random_scene(rng: &mut RNG, matlib: &mut MaterialLibrary) -> HitableList {
         }),
     }));
     hitables.list.push(Rc::new(Sphere::new(
-        Vec3::new(0.0, -1000.0, 0.0),
+        Point3::new(0.0, -1000.0, 0.0),
         1000.0,
         matlib.lib.len() - 1,
     )));
@@ -343,12 +344,12 @@ fn random_scene(rng: &mut RNG, matlib: &mut MaterialLibrary) -> HitableList {
     for a in -5..5 {
         for b in -5..5 {
             let choose_mat: f32 = rng.rand();
-            let center = Vec3::new(
+            let center = Point3::new(
                 a as f32 + 0.9 * rng.rand(),
                 0.2,
                 b as f32 + 0.9 * rng.rand(),
             );
-            if (center - Vec3::new(4.0, 0.2, 0.0)).length() <= 0.9 {
+            if (center - Point3::new(4.0, 0.2, 0.0)).length() <= 0.9 {
                 continue;
             }
             if choose_mat < 0.8 {
@@ -394,7 +395,7 @@ fn random_scene(rng: &mut RNG, matlib: &mut MaterialLibrary) -> HitableList {
 
     matlib.lib.push(Box::new(Dielectric { ref_idx: 1.5 }));
     hitables.list.push(Rc::new(Sphere::new(
-        Vec3::new(0.0, 1.0, 0.0),
+        Point3::new(0.0, 1.0, 0.0),
         1.0,
         matlib.lib.len() - 1,
     )));
@@ -406,7 +407,7 @@ fn random_scene(rng: &mut RNG, matlib: &mut MaterialLibrary) -> HitableList {
         emit: Rc::new(ConstTexture(Vec3::new(4.0, 4.0, 4.0))),
     }));
     hitables.list.push(Rc::new(Sphere::new(
-        Vec3::new(4.0, 1.0, 0.0),
+        Point3::new(4.0, 1.0, 0.0),
         1.0,
         matlib.lib.len() - 1,
     )));
@@ -416,7 +417,7 @@ fn random_scene(rng: &mut RNG, matlib: &mut MaterialLibrary) -> HitableList {
         fuzz: 0.0,
     }));
     hitables.list.push(Rc::new(Sphere::new(
-        Vec3::new(-4.0, 1.0, 0.0),
+        Point3::new(-4.0, 1.0, 0.0),
         1.0,
         matlib.lib.len() - 1,
     )));
@@ -460,8 +461,8 @@ fn main() {
     let bvh = BVH::new(scene, 0.0, 0.1, &mut rng);
     //::std::dbg!(&bvh);
 
-    let look_from = Vec3::new(13.0, 2.0, 3.0);
-    let look_at = Vec3::new(0.0, 0.0, 0.0);
+    let look_from = Point3::new(13.0, 2.0, 3.0);
+    let look_at = Point3::new(0.0, 0.0, 0.0);
     let dist_to_focus = 10.0; //(look_from - look_at).length();
     let aperture = 0.0;
     let fov = 20.0;
