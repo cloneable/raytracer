@@ -10,9 +10,11 @@ use ::std::unreachable;
 use ::std::vec::Vec;
 
 // use ::math::Vec3;
-use ::math::simd::Vec3;
+use ::math::simd::F32x4;
 use ::rand::Rng;
 use ::rand::SeedableRng;
+
+type Vec3 = F32x4;
 
 #[derive(Default, Clone)]
 pub struct HitRecord {
@@ -97,8 +99,8 @@ impl RNG {
 
     pub fn random_in_unit_sphere(&mut self) -> Vec3 {
         loop {
-            let v = 2.0 * Vec3::new(self.rand(), self.rand(), self.rand())
-                - Vec3::new(1.0, 1.0, 1.0);
+            let v = 2.0 * Vec3::new(self.rand(), self.rand(), self.rand(), 0.0)
+                - Vec3::new(1.0, 1.0, 1.0, 0.0);
             if v.dot(v) >= 1.0 {
                 return v;
             }
@@ -108,8 +110,8 @@ impl RNG {
 
     pub fn random_in_unit_disk(&mut self) -> Vec3 {
         loop {
-            let v = 2.0 * Vec3::new(self.rand(), self.rand(), 0.0)
-                - Vec3::new(1.0, 1.0, 0.0);
+            let v = 2.0 * Vec3::new(self.rand(), self.rand(), 0.0, 0.0)
+                - Vec3::new(1.0, 1.0, 0.0, 0.0);
             if v.dot(v) < 1.0 {
                 return v;
             }
