@@ -150,15 +150,11 @@ impl AABB {
 
     #[inline(never)]
     pub fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> bool {
-        let r_origin = r.origin;
-        let r_direction = r.direction;
-        let min = self.min;
-        let max = self.max;
         for a in 0..=2 {
             // TODO: simd this.
-            let inv_dir = 1.0 / r_direction[a];
-            let mut t0 = (min[a] - r_origin[a]) * inv_dir;
-            let mut t1 = (max[a] - r_origin[a]) * inv_dir;
+            let inv_dir = 1.0 / r.direction[a];
+            let mut t0 = (self.min[a] - r.origin[a]) * inv_dir;
+            let mut t1 = (self.max[a] - r.origin[a]) * inv_dir;
             if inv_dir < 0.0 {
                 ::std::mem::swap(&mut t0, &mut t1);
             }

@@ -1,22 +1,22 @@
 #[cfg(target_arch = "x86_64")]
 use ::std::arch::x86_64::{
     __m128,
-    _mm_add_ps,      // SSE
-    _mm_cmpeq_ps,    // SSE
-    _mm_cmpgt_ps,    // SSE
-    _mm_div_ps,      // SSE
-    _mm_max_ps,      // SSE
-    _mm_min_ps,      // SSE
-    _mm_movemask_ps, // SSE
-    _mm_mul_ps,      // SSE
-    _mm_rcp_ps,      // SSE
-    _mm_set1_ps,     // SSE
-    _mm_set_ps,      // SSE
-    _mm_setzero_ps,  // SSE
-    _mm_sqrt_ps,     // SSE
-    _mm_sub_ps,      // SSE
-    _mm_xor_ps,      // SSE
-                     //_mm_dp_ps, // SSE4_1
+    _mm_add_ps,       // SSE
+    _mm_cmpeq_ps,     // SSE
+    _mm_cmpgt_ps,     // SSE
+    _mm_div_ps,       // SSE
+    _mm_max_ps,       // SSE
+    _mm_min_ps,       // SSE
+    _mm_movemask_ps,  // SSE
+    _mm_mul_ps,       // SSE
+    _mm_rcp_ps,       // SSE
+    _mm_set1_ps,      // SSE
+    _mm_set_ps,       // SSE
+    _mm_setzero_ps,   // SSE
+    _mm_sqrt_ps,      // SSE
+    _mm_sub_ps,       // SSE
+    _mm_undefined_ps, // SSE
+    _mm_xor_ps,       // SSE
 };
 use ::std::cmp::PartialEq;
 use ::std::default::Default;
@@ -38,9 +38,23 @@ impl Debug for F32x4 {
 
 impl F32x4 {
     #[inline(always)]
-    pub fn new(a: f32, b: f32, c: f32, d: f32) -> Self {
+    pub fn set(a: f32, b: f32, c: f32, d: f32) -> Self {
         F32x4 {
             r: unsafe { _mm_set_ps(d, c, b, a) },
+        }
+    }
+
+    #[inline(always)]
+    pub fn set1(a: f32) -> Self {
+        F32x4 {
+            r: unsafe { _mm_set1_ps(a) },
+        }
+    }
+
+    #[inline(always)]
+    pub unsafe fn undefined() -> Self {
+        F32x4 {
+            r: _mm_undefined_ps(),
         }
     }
 
@@ -108,8 +122,6 @@ impl Index<usize> for F32x4 {
     }
 }
 
-// ===== Add =====
-
 impl Add for F32x4 {
     type Output = F32x4;
 
@@ -121,16 +133,12 @@ impl Add for F32x4 {
     }
 }
 
-// ===== AddAssign =====
-
 impl AddAssign for F32x4 {
     #[inline(always)]
     fn add_assign(&mut self, other: F32x4) {
         self.r = unsafe { _mm_add_ps(self.r, other.r) };
     }
 }
-
-// ===== Sub =====
 
 impl Sub for F32x4 {
     type Output = F32x4;
@@ -142,8 +150,6 @@ impl Sub for F32x4 {
         }
     }
 }
-
-// ===== Neg =====
 
 impl Neg for F32x4 {
     type Output = F32x4;
@@ -158,8 +164,6 @@ impl Neg for F32x4 {
         // Vec3(unsafe { _mm_mul_ps(self.0, _mm_set1_ps(-1.0)) })
     }
 }
-
-// ===== Mul =====
 
 impl Mul for F32x4 {
     type Output = F32x4;
@@ -177,22 +181,16 @@ impl Mul<f32> for F32x4 {
 
     #[inline(always)]
     fn mul(self, s: f32) -> F32x4 {
-        F32x4 {
-            r: unsafe { _mm_mul_ps(self.r, _mm_set1_ps(s)) },
-        }
+        self * F32x4::set1(s)
     }
 }
-
-// ===== Div =====
 
 impl Div<f32> for F32x4 {
     type Output = F32x4;
 
     #[inline(always)]
     fn div(self, s: f32) -> F32x4 {
-        F32x4 {
-            r: unsafe { _mm_div_ps(self.r, _mm_set1_ps(s)) },
-        }
+        self / F32x4::set1(s)
     }
 }
 
@@ -208,8 +206,6 @@ impl Div<F32x4> for F32x4 {
     }
 }
 
-// ===== DivAssign =====
-
 impl DivAssign<f32> for F32x4 {
     #[inline(always)]
     fn div_assign(&mut self, s: f32) {
@@ -220,6 +216,7 @@ impl DivAssign<f32> for F32x4 {
 impl PartialEq for F32x4 {
     #[inline(always)]
     fn eq(&self, other: &F32x4) -> bool {
+        // TODO: 0.0 != -0.0
         unsafe { _mm_movemask_ps(_mm_cmpeq_ps(self.r, other.r)) == 0 }
     }
 }

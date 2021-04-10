@@ -17,7 +17,7 @@ pub struct Vec3(F32x4);
 impl Vec3 {
     #[inline]
     pub fn new(x: f32, y: f32, z: f32) -> Self {
-        Vec3(F32x4::new(x, y, z, 0.0))
+        Vec3(F32x4::set(x, y, z, 0.0))
     }
 
     #[inline]
@@ -176,7 +176,7 @@ pub struct Point3(F32x4);
 impl Point3 {
     #[inline]
     pub fn new(x: f32, y: f32, z: f32) -> Self {
-        Point3(F32x4::new(x, y, z, 0.0))
+        Point3(F32x4::set(x, y, z, 0.0))
     }
 
     #[inline]
