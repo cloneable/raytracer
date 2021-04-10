@@ -11,9 +11,7 @@ use ::std::print;
 use ::std::rc::Rc;
 
 // use ::math::Vec3;
-use ::math::simd::F32x4;
-
-type Vec3 = F32x4;
+use ::math::simd::Vec3;
 
 mod executor;
 mod pbrt;
@@ -84,7 +82,7 @@ impl Hitable for Sphere {
     }
 
     fn bounding_box(&self, _: f32, _: f32) -> Option<AABB> {
-        let rv = Vec3::new(self.radius, self.radius, self.radius, 0.0);
+        let rv = Vec3::new(self.radius, self.radius, self.radius);
         Some(AABB::new(self.center - rv, self.center + rv))
     }
 }
@@ -155,7 +153,7 @@ impl Hitable for MovingSphere {
     }
 
     fn bounding_box(&self, _: f32, _: f32) -> Option<AABB> {
-        let rv = Vec3::new(self.radius, self.radius, self.radius, 0.0);
+        let rv = Vec3::new(self.radius, self.radius, self.radius);
         let b0 = AABB::new(self.center0 - rv, self.center0 + rv);
         let b1 = AABB::new(self.center1 - rv, self.center1 + rv);
         Some(AABB::surround(b0, b1))
@@ -179,7 +177,7 @@ struct CheckerTexture {
 
 impl Texture for CheckerTexture {
     fn value(&self, u: f32, v: f32, p: Vec3) -> Vec3 {
-        let sines = (p * 10.0).as_array();
+        let sines = p * 10.0;
         let o = sines[0].sin() * sines[1].sin() * sines[2].sin();
         if o < 0.0 {
             self.odd.value(u, v, p)
@@ -272,7 +270,7 @@ impl Material for Dielectric {
         let outward_normal;
         let ni_over_nt;
         let cosine;
-        *attenuation = Vec3::new(1.0, 1.0, 1.0, 0.0);
+        *attenuation = Vec3::new(1.0, 1.0, 1.0);
         let dir_dot_nrm = ray.direction.dot(rec.normal);
         if dir_dot_nrm > 0.0 {
             outward_normal = -rec.normal;
@@ -332,12 +330,12 @@ fn random_scene(rng: &mut RNG, matlib: &mut MaterialLibrary) -> HitableList {
 
     matlib.lib.push(Box::new(Lambertian {
         albedo: Rc::new(CheckerTexture {
-            odd: Rc::new(ConstTexture(Vec3::new(0.2, 0.3, 0.1, 0.0))),
-            even: Rc::new(ConstTexture(Vec3::new(0.9, 0.9, 0.9, 0.0))),
+            odd: Rc::new(ConstTexture(Vec3::new(0.2, 0.3, 0.1))),
+            even: Rc::new(ConstTexture(Vec3::new(0.9, 0.9, 0.9))),
         }),
     }));
     hitables.list.push(Rc::new(Sphere::new(
-        Vec3::new(0.0, -1000.0, 0.0, 0.0),
+        Vec3::new(0.0, -1000.0, 0.0),
         1000.0,
         matlib.lib.len() - 1,
     )));
@@ -349,9 +347,8 @@ fn random_scene(rng: &mut RNG, matlib: &mut MaterialLibrary) -> HitableList {
                 a as f32 + 0.9 * rng.rand(),
                 0.2,
                 b as f32 + 0.9 * rng.rand(),
-                0.0,
             );
-            if (center - Vec3::new(4.0, 0.2, 0.0, 0.0)).length() <= 0.9 {
+            if (center - Vec3::new(4.0, 0.2, 0.0)).length() <= 0.9 {
                 continue;
             }
             if choose_mat < 0.8 {
@@ -360,7 +357,6 @@ fn random_scene(rng: &mut RNG, matlib: &mut MaterialLibrary) -> HitableList {
                         rng.rand() * rng.rand(),
                         rng.rand() * rng.rand(),
                         rng.rand() * rng.rand(),
-                        0.0,
                     ))),
                 }));
                 hitables.list.push(Rc::new(Sphere::new(
@@ -377,7 +373,6 @@ fn random_scene(rng: &mut RNG, matlib: &mut MaterialLibrary) -> HitableList {
                         0.5 * (1.0 + rng.rand()),
                         0.5 * (1.0 + rng.rand()),
                         0.5 * (1.0 + rng.rand()),
-                        0.0,
                     ),
                     fuzz: 0.5 * rng.rand(),
                 }));
@@ -399,7 +394,7 @@ fn random_scene(rng: &mut RNG, matlib: &mut MaterialLibrary) -> HitableList {
 
     matlib.lib.push(Box::new(Dielectric { ref_idx: 1.5 }));
     hitables.list.push(Rc::new(Sphere::new(
-        Vec3::new(0.0, 1.0, 0.0, 0.0),
+        Vec3::new(0.0, 1.0, 0.0),
         1.0,
         matlib.lib.len() - 1,
     )));
@@ -408,20 +403,20 @@ fn random_scene(rng: &mut RNG, matlib: &mut MaterialLibrary) -> HitableList {
     //     albedo: Rc::new(ConstTexture(Vec3::new(0.4, 0.2, 0.1))),
     // }));
     matlib.lib.push(Box::new(DiffuseLight {
-        emit: Rc::new(ConstTexture(Vec3::new(4.0, 4.0, 4.0, 0.0))),
+        emit: Rc::new(ConstTexture(Vec3::new(4.0, 4.0, 4.0))),
     }));
     hitables.list.push(Rc::new(Sphere::new(
-        Vec3::new(4.0, 1.0, 0.0, 0.0),
+        Vec3::new(4.0, 1.0, 0.0),
         1.0,
         matlib.lib.len() - 1,
     )));
 
     matlib.lib.push(Box::new(Metal {
-        albedo: Vec3::new(0.7, 0.6, 0.5, 0.0),
+        albedo: Vec3::new(0.7, 0.6, 0.5),
         fuzz: 0.0,
     }));
     hitables.list.push(Rc::new(Sphere::new(
-        Vec3::new(-4.0, 1.0, 0.0, 0.0),
+        Vec3::new(-4.0, 1.0, 0.0),
         1.0,
         matlib.lib.len() - 1,
     )));
@@ -465,15 +460,15 @@ fn main() {
     let bvh = BVH::new(scene, 0.0, 0.1, &mut rng);
     //::std::dbg!(&bvh);
 
-    let look_from = Vec3::new(13.0, 2.0, 3.0, 0.0);
-    let look_at = Vec3::new(0.0, 0.0, 0.0, 0.0);
+    let look_from = Vec3::new(13.0, 2.0, 3.0);
+    let look_at = Vec3::new(0.0, 0.0, 0.0);
     let dist_to_focus = 10.0; //(look_from - look_at).length();
     let aperture = 0.0;
     let fov = 20.0;
     let cam = Camera::new(
         look_from,
         look_at,
-        &Vec3::new(0.0, 1.0, 0.0, 0.0),
+        &Vec3::new(0.0, 1.0, 0.0),
         fov,
         (width as f32) / (height as f32),
         aperture,
@@ -489,7 +484,7 @@ fn main() {
     print!("P3\n{} {}\n255\n", width, height);
     for y in (0..height).rev() {
         for x in 0..width {
-            let mut color = Vec3::new(0.0, 0.0, 0.0, 0.0);
+            let mut color = Vec3::new(0.0, 0.0, 0.0);
             for _ in 0..samples {
                 let u = (x as f32 + rng.rand()) / (width as f32);
                 let v = (y as f32 + rng.rand()) / (height as f32);
@@ -498,7 +493,7 @@ fn main() {
             }
             color /= samples as f32;
             color = color.sqrt(); // Vec3::new(color.r.sqrt(), color.g.sqrt(), color.b.sqrt());
-            let (r, g, b, _) = color.as_u8();
+            let (r, g, b) = color.as_u8();
             print!("{} {} {}\n", r, g, b);
             progress.increment();
         }

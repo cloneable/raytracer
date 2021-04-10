@@ -10,11 +10,9 @@ use ::std::unreachable;
 use ::std::vec::Vec;
 
 // use ::math::Vec3;
-use ::math::simd::F32x4;
+use ::math::simd::Vec3;
 use ::rand::Rng;
 use ::rand::SeedableRng;
-
-type Vec3 = F32x4;
 
 #[derive(Default, Clone)]
 pub struct HitRecord {
@@ -99,8 +97,8 @@ impl RNG {
 
     pub fn random_in_unit_sphere(&mut self) -> Vec3 {
         loop {
-            let v = 2.0 * Vec3::new(self.rand(), self.rand(), self.rand(), 0.0)
-                - Vec3::new(1.0, 1.0, 1.0, 0.0);
+            let v = 2.0 * Vec3::new(self.rand(), self.rand(), self.rand())
+                - Vec3::new(1.0, 1.0, 1.0);
             if v.dot(v) >= 1.0 {
                 return v;
             }
@@ -110,8 +108,8 @@ impl RNG {
 
     pub fn random_in_unit_disk(&mut self) -> Vec3 {
         loop {
-            let v = 2.0 * Vec3::new(self.rand(), self.rand(), 0.0, 0.0)
-                - Vec3::new(1.0, 1.0, 0.0, 0.0);
+            let v = 2.0 * Vec3::new(self.rand(), self.rand(), 0.0)
+                - Vec3::new(1.0, 1.0, 0.0);
             if v.dot(v) < 1.0 {
                 return v;
             }
@@ -153,10 +151,10 @@ impl AABB {
 
     #[inline(never)]
     pub fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> bool {
-        let r_origin = r.origin.as_array();
-        let r_direction = r.direction.as_array();
-        let min = self.min.as_array();
-        let max = self.max.as_array();
+        let r_origin = r.origin;
+        let r_direction = r.direction;
+        let min = self.min;
+        let max = self.max;
         for a in 0..=2 {
             // TODO: simd this.
             let inv_dir = 1.0 / r_direction[a];
