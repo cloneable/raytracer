@@ -34,11 +34,13 @@ impl Vec3 {
     #[inline]
     pub fn dot(self, other: Vec3) -> f32 {
         // _mm_dp_ps() is slower.
-        // let dp = Vec3(unsafe { _mm_dp_ps(self.0, other.0, 0b01110001) });
-        // dp.x()
+        // self.0.dot_product(other.0)
+
         let p = self.0 * other.0;
-        // let a = p.as_array();
         // TODO: horizontal sum intrinsic?
+        // let p = p.horizontal_add(p);
+        // let p = p.horizontal_add(p);
+        // p[0]
         p[0] + p[1] + p[2] + p[3]
     }
 
