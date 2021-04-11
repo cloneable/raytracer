@@ -314,8 +314,8 @@ struct DiffuseLight {
 
 impl Material for DiffuseLight {
     fn scatter(
-        &self, rng: &mut RNG, ray: &Ray, rec: &mut HitRecord,
-        attenuation: &mut Vec3, scattered: &mut Ray,
+        &self, _rng: &mut RNG, _ray: &Ray, _rec: &mut HitRecord,
+        _attenuation: &mut Vec3, _scattered: &mut Ray,
     ) -> bool {
         false
     }
