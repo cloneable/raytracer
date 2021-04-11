@@ -15,23 +15,23 @@ use simd::F32x4;
 pub struct Vec3(F32x4);
 
 impl Vec3 {
-    #[inline]
+    #[inline(always)]
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         Vec3(F32x4::set(x, y, z, 0.0))
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn length(self) -> f32 {
         self.dot(self).sqrt()
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn unit(self) -> Vec3 {
         // div by zero -> panic
         self / self.length()
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn dot(self, other: Vec3) -> f32 {
         // _mm_dp_ps() is slower.
         // self.0.dot_product(other.0)
@@ -53,27 +53,27 @@ impl Vec3 {
         )
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn sqrt(self) -> Vec3 {
         Vec3(self.0.sqrt())
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn x(self) -> f32 {
         self.0[0]
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn y(self) -> f32 {
         self.0[1]
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn z(self) -> f32 {
         self.0[2]
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn as_u8(self) -> (u8, u8, u8) {
         let a = self * 255.99;
         (a[0] as u8, a[1] as u8, a[2] as u8)
@@ -81,6 +81,7 @@ impl Vec3 {
 }
 
 impl From<Point3> for Vec3 {
+    #[inline(always)]
     fn from(p: Point3) -> Self {
         Vec3(p.0)
     }
@@ -89,7 +90,7 @@ impl From<Point3> for Vec3 {
 impl Index<usize> for Vec3 {
     type Output = f32;
 
-    #[inline]
+    #[inline(always)]
     fn index(&self, i: usize) -> &f32 {
         &self.0[i]
     }
@@ -98,14 +99,14 @@ impl Index<usize> for Vec3 {
 impl Add for Vec3 {
     type Output = Vec3;
 
-    #[inline]
+    #[inline(always)]
     fn add(self, other: Vec3) -> Vec3 {
         Vec3(self.0 + other.0)
     }
 }
 
 impl AddAssign for Vec3 {
-    #[inline]
+    #[inline(always)]
     fn add_assign(&mut self, other: Vec3) {
         self.0 += other.0
     }
@@ -114,7 +115,7 @@ impl AddAssign for Vec3 {
 impl Sub for Vec3 {
     type Output = Vec3;
 
-    #[inline]
+    #[inline(always)]
     fn sub(self, other: Vec3) -> Vec3 {
         Vec3(self.0 - other.0)
     }
@@ -123,7 +124,7 @@ impl Sub for Vec3 {
 impl Mul for Vec3 {
     type Output = Vec3;
 
-    #[inline]
+    #[inline(always)]
     fn mul(self, other: Vec3) -> Vec3 {
         Vec3(self.0 * other.0)
     }
@@ -132,7 +133,7 @@ impl Mul for Vec3 {
 impl Mul<f32> for Vec3 {
     type Output = Vec3;
 
-    #[inline]
+    #[inline(always)]
     fn mul(self, s: f32) -> Vec3 {
         Vec3(self.0 * s)
     }
@@ -141,7 +142,7 @@ impl Mul<f32> for Vec3 {
 impl Mul<Vec3> for f32 {
     type Output = Vec3;
 
-    #[inline]
+    #[inline(always)]
     fn mul(self, v: Vec3) -> Vec3 {
         Vec3(v.0 * self)
     }
@@ -150,14 +151,14 @@ impl Mul<Vec3> for f32 {
 impl Div<f32> for Vec3 {
     type Output = Vec3;
 
-    #[inline]
+    #[inline(always)]
     fn div(self, s: f32) -> Vec3 {
         Vec3(self.0 / s)
     }
 }
 
 impl DivAssign<f32> for Vec3 {
-    #[inline]
+    #[inline(always)]
     fn div_assign(&mut self, s: f32) {
         self.0 /= s
     }
@@ -166,7 +167,7 @@ impl DivAssign<f32> for Vec3 {
 impl Neg for Vec3 {
     type Output = Vec3;
 
-    #[inline]
+    #[inline(always)]
     fn neg(self) -> Vec3 {
         Vec3(-self.0)
     }
@@ -176,32 +177,32 @@ impl Neg for Vec3 {
 pub struct Point3(F32x4);
 
 impl Point3 {
-    #[inline]
+    #[inline(always)]
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         Point3(F32x4::set(x, y, z, 0.0))
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn x(self) -> f32 {
         self.0[0]
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn y(self) -> f32 {
         self.0[1]
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn z(self) -> f32 {
         self.0[2]
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn min(self, other: Point3) -> Point3 {
         Point3(self.0.min(other.0))
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn max(self, other: Point3) -> Point3 {
         Point3(self.0.max(other.0))
     }
@@ -210,7 +211,7 @@ impl Point3 {
 impl Index<usize> for Point3 {
     type Output = f32;
 
-    #[inline]
+    #[inline(always)]
     fn index(&self, i: usize) -> &f32 {
         &self.0[i]
     }
@@ -219,6 +220,7 @@ impl Index<usize> for Point3 {
 impl Add<Vec3> for Point3 {
     type Output = Point3;
 
+    #[inline(always)]
     fn add(self, v: Vec3) -> Point3 {
         Point3(self.0 + v.0)
     }
@@ -227,6 +229,7 @@ impl Add<Vec3> for Point3 {
 impl Sub for Point3 {
     type Output = Vec3;
 
+    #[inline(always)]
     fn sub(self, other: Point3) -> Vec3 {
         Vec3(self.0 - other.0)
     }
@@ -235,6 +238,7 @@ impl Sub for Point3 {
 impl Sub<Vec3> for Point3 {
     type Output = Point3;
 
+    #[inline(always)]
     fn sub(self, v: Vec3) -> Point3 {
         Point3(self.0 - v.0)
     }
