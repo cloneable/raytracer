@@ -152,6 +152,12 @@ impl F32x4 {
 
     #[inline(always)]
     #[must_use]
+    pub const fn shuffle_control(a: u8, b: u8, c: u8, d: u8) -> u8 {
+        (a & 0b11) | ((b & 0b11) << 2) | ((c & 0b11) << 4) | ((d & 0b11) << 6)
+    }
+
+    #[inline(always)]
+    #[must_use]
     pub fn shuffle<const CTRL: u8>(self) -> F32x4 {
         F32x4 {
             r: unsafe { _mm_shuffle_ps(self.r, self.r, CTRL as i32) },
@@ -320,5 +326,29 @@ impl PartialEq for F32x4 {
     fn eq(&self, other: &F32x4) -> bool {
         // TODO: 0.0 != -0.0
         unsafe { _mm_movemask_ps(_mm_cmpeq_ps(self.r, other.r)) == 0 }
+    }
+}
+
+#[cfg(test)]
+pub mod tests {
+    use super::*;
+    use ::std::assert_eq;
+
+    #[test]
+    fn test_shuffle() {
+        const REVERSE: u8 = F32x4::shuffle_control(3, 2, 1, 0);
+        const MIX: u8 = F32x4::shuffle_control(2, 3, 0, 1);
+        const FIRST: u8 = F32x4::shuffle_control(0, 0, 0, 0);
+        const LAST: u8 = F32x4::shuffle_control(3, 3, 3, 3);
+
+        let a = F32x4::set(1.0, 2.0, 3.0, 4.0);
+        let rev = a.shuffle::<REVERSE>();
+        assert_eq!(rev.as_array(), [4.0, 3.0, 2.0, 1.0]);
+        let mix = a.shuffle::<MIX>();
+        assert_eq!(mix.as_array(), [3.0, 4.0, 1.0, 2.0]);
+        let first = a.shuffle::<FIRST>();
+        assert_eq!(first.as_array(), [1.0, 1.0, 1.0, 1.0]);
+        let last = a.shuffle::<LAST>();
+        assert_eq!(last.as_array(), [4.0, 4.0, 4.0, 4.0]);
     }
 }
