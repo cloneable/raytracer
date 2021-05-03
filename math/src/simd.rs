@@ -5,16 +5,21 @@ use ::std::arch::x86_64::{
     _mm_cmpeq_ps,     // SSE
     _mm_cmpgt_ps,     // SSE
     _mm_div_ps,       // SSE
+    _mm_load1_ps,     // SSE
+    _mm_load_ps,      // SSE
+    _mm_loadu_ps,     // SSE
     _mm_max_ps,       // SSE
     _mm_min_ps,       // SSE
     _mm_movemask_ps,  // SSE
     _mm_mul_ps,       // SSE
     _mm_rcp_ps,       // SSE
-    _mm_set1_ps,      // SSE
-    _mm_set_ps,       // SSE
+    _mm_set1_ps,      // SSE, seq
+    _mm_set_ps,       // SSE, seq
     _mm_setzero_ps,   // SSE
     _mm_shuffle_ps,   // SSE
     _mm_sqrt_ps,      // SSE
+    _mm_store_ps,     // SSE
+    _mm_storeu_ps,    // SSE
     _mm_sub_ps,       // SSE
     _mm_undefined_ps, // SSE
     _mm_xor_ps,       // SSE
@@ -55,6 +60,40 @@ impl F32x4 {
         F32x4 {
             r: unsafe { _mm_set1_ps(a) },
         }
+    }
+
+    #[inline(always)]
+    #[must_use]
+    pub fn load(buf: &[f32; 4]) -> Self {
+        F32x4 {
+            r: unsafe { _mm_loadu_ps(buf.as_ptr()) },
+        }
+    }
+
+    #[inline(always)]
+    #[must_use]
+    pub fn load_aligned(buf: &[f32; 4]) -> Self {
+        F32x4 {
+            r: unsafe { _mm_load_ps(buf.as_ptr()) },
+        }
+    }
+
+    #[inline(always)]
+    #[must_use]
+    pub fn load1_aligned(buf: &[f32; 1]) -> Self {
+        F32x4 {
+            r: unsafe { _mm_load1_ps(buf.as_ptr()) },
+        }
+    }
+
+    #[inline(always)]
+    pub fn store(self, buf: &mut [f32; 4]) {
+        unsafe { _mm_storeu_ps(buf.as_mut_ptr(), self.r) }
+    }
+
+    #[inline(always)]
+    pub fn store_aligned(self, buf: &mut [f32; 4]) {
+        unsafe { _mm_store_ps(buf.as_mut_ptr(), self.r) }
     }
 
     #[inline(always)]
