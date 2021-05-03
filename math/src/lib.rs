@@ -44,13 +44,16 @@ impl Vec3 {
         p[0] + p[1] + p[2] + p[3]
     }
 
+    #[inline(always)]
     pub fn cross(&self, other: &Vec3) -> Vec3 {
-        // TODO: use intrinsics
-        Vec3::new(
-            self.y() * other.z() - self.z() * other.y(),
-            self.z() * other.x() - self.x() * other.z(),
-            self.x() * other.y() - self.y() * other.x(),
-        )
+        // TODO: can one shuffle be replaced by using YZXy and yZXY?
+        const YZX: u8 = F32x4::shuffle_control(1, 2, 0, 0);
+        const ZXY: u8 = F32x4::shuffle_control(2, 0, 1, 0);
+        let self_yzx = self.0.shuffle::<YZX>();
+        let other_zxy = other.0.shuffle::<ZXY>();
+        let self_zxy = self.0.shuffle::<ZXY>();
+        let other_yzx = other.0.shuffle::<YZX>();
+        Vec3(self_yzx * other_zxy - self_zxy * other_yzx)
     }
 
     #[inline(always)]
