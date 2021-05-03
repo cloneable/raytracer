@@ -5,8 +5,6 @@ use ::std::arch::x86_64::{
     _mm_cmpeq_ps,     // SSE
     _mm_cmpgt_ps,     // SSE
     _mm_div_ps,       // SSE
-    _mm_dp_ps,        // SSE4_1
-    _mm_hadd_ps,      // SSE3
     _mm_max_ps,       // SSE
     _mm_min_ps,       // SSE
     _mm_movemask_ps,  // SSE
@@ -105,34 +103,11 @@ impl F32x4 {
         }
     }
 
-    // #[inline(always)]
-    // fn sin(&self) -> Vec3 {
-    //     Vec3(unsafe { _mm_sin_ps(self.0) })
-    // }
-
     #[inline(always)]
     #[must_use]
     pub fn simd_cmpgt(self, other: F32x4) -> F32x4 {
         F32x4 {
             r: unsafe { _mm_cmpgt_ps(self.r, other.r) },
-        }
-    }
-
-    #[inline(always)]
-    #[must_use]
-    pub fn dot_product(self, other: F32x4) -> f32 {
-        // TODO: _mm_dp_ps() is slow. Because SSE4.1?
-        let a = F32x4 {
-            r: unsafe { _mm_dp_ps(self.r, other.r, 0b01110001) },
-        };
-        a[0]
-    }
-
-    #[inline(always)]
-    #[must_use]
-    pub fn horizontal_add(self, other: F32x4) -> F32x4 {
-        F32x4 {
-            r: unsafe { _mm_hadd_ps(self.r, other.r) },
         }
     }
 
