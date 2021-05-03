@@ -13,6 +13,7 @@ use ::std::arch::x86_64::{
     _mm_movemask_ps,  // SSE
     _mm_mul_ps,       // SSE
     _mm_rcp_ps,       // SSE
+    _mm_rsqrt_ps,     // SSE
     _mm_set1_ps,      // SSE, seq
     _mm_set_ps,       // SSE, seq
     _mm_setzero_ps,   // SSE
@@ -114,6 +115,14 @@ impl F32x4 {
 
     #[inline(always)]
     #[must_use]
+    pub fn rsqrt(self) -> F32x4 {
+        F32x4 {
+            r: unsafe { _mm_rsqrt_ps(self.r) },
+        }
+    }
+
+    #[inline(always)]
+    #[must_use]
     pub fn min(self, other: F32x4) -> F32x4 {
         F32x4 {
             r: unsafe { _mm_min_ps(self.r, other.r) },
@@ -136,7 +145,7 @@ impl F32x4 {
 
     #[inline(always)]
     #[must_use]
-    pub fn reciprocal(&self) -> F32x4 {
+    pub fn rcp(&self) -> F32x4 {
         F32x4 {
             r: unsafe { _mm_rcp_ps(self.r) },
         }
@@ -144,7 +153,7 @@ impl F32x4 {
 
     #[inline(always)]
     #[must_use]
-    pub fn simd_cmpgt(self, other: F32x4) -> F32x4 {
+    pub fn cmpgt(self, other: F32x4) -> F32x4 {
         F32x4 {
             r: unsafe { _mm_cmpgt_ps(self.r, other.r) },
         }
