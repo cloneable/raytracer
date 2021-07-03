@@ -5,11 +5,12 @@ use ::std::boxed::Box;
 use ::std::clone::Clone;
 use ::std::convert::From;
 use ::std::default::Default;
-use ::std::io::{self, Write};
+use ::std::fs::File;
+use ::std::io::{self, BufWriter, Write};
 use ::std::iter::Iterator;
 use ::std::option::Option::{self, None, Some};
-use ::std::print;
 use ::std::rc::Rc;
+use ::std::{print, write};
 
 use ::math::{Point3, Vec3};
 
@@ -481,7 +482,10 @@ fn main() {
 
     let mut progress = Progress::new(width * height);
 
-    print!("P3\n{} {}\n255\n", width, height);
+    let f = File::create("pic.ppm").unwrap();
+    let mut w = BufWriter::new(f);
+
+    write!(&mut w, "P3\n{} {}\n255\n", width, height).unwrap();
     for y in (0..height).rev() {
         for x in 0..width {
             let mut color = Vec3::new(0.0, 0.0, 0.0);
@@ -494,8 +498,9 @@ fn main() {
             color /= samples as f32;
             color = color.sqrt(); // Vec3::new(color.r.sqrt(), color.g.sqrt(), color.b.sqrt());
             let (r, g, b) = color.as_u8();
-            print!("{} {} {}\n", r, g, b);
+            write!(&mut w, "{} {} {}\n", r, g, b).unwrap();
             progress.increment();
         }
+        w.flush().unwrap();
     }
 }

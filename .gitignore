@@ -4,3 +4,4 @@ Cargo.lock
 .*.swp
 .*.bak
 perf.data
+/pic.ppm
